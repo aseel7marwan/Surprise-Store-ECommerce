@@ -62,6 +62,7 @@ The system is designed with a modular, security-first architecture — featuring
 
 ---
 
+<<<<<<< HEAD
 ## 🔐 Security Highlights
 
 | Feature                   | Implementation                                                |
@@ -75,6 +76,8 @@ The system is designed with a modular, security-first architecture — featuring
 
 ---
 
+=======
+>>>>>>> 0a6fe2eff6dfa7737480492f8429a2f7230535e8
 ## ⚖️ License & Intellectual Property
 
 > **⚠️ Proprietary / Showcase Only**

@@ -1,0 +1,63 @@
+# ===================================================
+# Surprise! Store - .gitignore
+# ===================================================
+
+# ============ ENVIRONMENT & IDE ============
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+*.swp
+*.swo
+
+# ============ OS FILES ============
+Thumbs.db
+Desktop.ini
+.DS_Store
+._*
+
+# ============ LOGS ============
+*.log
+data/logs/
+data/security.log
+data/db_errors.log
+data/php_errors.log
+
+# ============ BACKUPS ============
+backups/
+*.bak
+*.sql.bak
+*.zip
+
+# ============ SENSITIVE DATA ============
+data/admin_credentials.php
+docs/CREDENTIALS.md
+
+# ============ DEPLOYMENT ============
+deploy.ps1
+deploy.bat
+deploy-winscp.bat
+deploy-winscp.txt
+surprise_upload.zip
+
+# ============ DEVELOPMENT ============
+debug_*.php
+check-errors.php
+install.php
+.archive/
+
+# ============ DEPENDENCIES ============
+node_modules/
+vendor/
+composer.lock
+package-lock.json
+
+# ============ UPLOADS (user-generated content) ============
+images/uploads/
+
+# ============ MISC ============
+antigravity_master_plan.md
+*.tmp
+*.temp

@@ -1,0 +1,112 @@
+# ══════════════════════════════════════════════════
+# Surprise! Gift Store - robots.txt
+# https://surprise-iq.com
+# Updated: 2026-01-22
+# ══════════════════════════════════════════════════
+
+# Allow all search engines
+User-agent: *
+Allow: /
+
+# ══════════════════════════════════════════════════
+# DISALLOW - Private/Admin Areas
+# ══════════════════════════════════════════════════
+Disallow: /admin/
+Disallow: /api/
+Disallow: /includes/
+Disallow: /data/
+Disallow: /backups/
+
+# Prevent indexing of internal files
+Disallow: /*.json$
+Disallow: /*.log$
+Disallow: /*.sql$
+Disallow: /*.bak$
+
+# Prevent query parameter duplicates
+Disallow: /*?*sort=
+Disallow: /*?*page=
+Disallow: /*?*filter=
+
+# ══════════════════════════════════════════════════
+# ALLOW - Important Public Files
+# ══════════════════════════════════════════════════
+Allow: /robots.txt
+Allow: /sitemap.xml
+Allow: /manifest.json
+Allow: /sw.js
+Allow: /offline.html
+
+# Allow all images
+Allow: /images/
+Allow: /images/logo.jpg
+Allow: /images/products/
+Allow: /images/banners/
+Allow: /images/icons/
+
+# Allow CSS/JS for rendering
+Allow: /css/
+Allow: /js/
+
+# ══════════════════════════════════════════════════
+# CLEAN URLs - Main Pages
+# ══════════════════════════════════════════════════
+Allow: /products
+Allow: /product
+Allow: /about
+Allow: /cart
+Allow: /wishlist
+Allow: /track
+Allow: /privacy
+Allow: /terms
+
+# ══════════════════════════════════════════════════
+# SITEMAP LOCATION
+# ══════════════════════════════════════════════════
+Sitemap: https://surprise-iq.com/sitemap.xml
+
+# ══════════════════════════════════════════════════
+# CRAWL RATE (polite crawling)
+# ══════════════════════════════════════════════════
+Crawl-delay: 1
+
+# ══════════════════════════════════════════════════
+# GOOGLE BOT SPECIFIC
+# ══════════════════════════════════════════════════
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Crawl-delay: 0
+
+# Google Images
+User-agent: Googlebot-Image
+Allow: /images/
+
+# ══════════════════════════════════════════════════
+# BING BOT
+# ══════════════════════════════════════════════════
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# ══════════════════════════════════════════════════
+# BLOCK BAD BOTS
+# ══════════════════════════════════════════════════
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# ══════════════════════════════════════════════════
+# HOST (Preferred domain)
+# ══════════════════════════════════════════════════
+Host: https://surprise-iq.com

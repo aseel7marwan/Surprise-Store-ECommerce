@@ -1,0 +1,37 @@
+# API Directory - Allow all HTTP methods
+# ═══════════════════════════════════════
+
+# Ensure PHP files work correctly
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Allow all requests to go directly to PHP files
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule .* - [L]
+</IfModule>
+
+# Allow POST requests
+<LimitExcept GET POST OPTIONS>
+    Order deny,allow
+    Deny from all
+</LimitExcept>
+
+# Disable caching for API responses
+<IfModule mod_headers.c>
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+</IfModule>
+
+# Handle CORS for API
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+</IfModule>
+
+# Handle OPTIONS preflight requests
+<IfModule mod_rewrite.c>
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ $1 [R=200,L]
+</IfModule>

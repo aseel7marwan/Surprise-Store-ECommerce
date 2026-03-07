@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>غير متصل بالإنترنت | بيج سبرايز</title>
+    <link rel="icon" type="image/png" href="/images/logo.jpg">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #FFF0F5 0%, #FFFFFF 50%, #F8F9FA 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            direction: rtl;
+        }
+        
+        .offline-container {
+            text-align: center;
+            max-width: 500px;
+            background: white;
+            padding: 50px 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(233, 30, 140, 0.15);
+            border: 1px solid rgba(233, 30, 140, 0.1);
+        }
+        
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .offline-container h1 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .offline-container p {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+        
+        .retry-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #E91E8C, #FF6BB3);
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(233, 30, 140, 0.3);
+            text-decoration: none;
+            font-family: inherit;
+        }
+        
+        .retry-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(233, 30, 140, 0.4);
+        }
+        
+        .retry-btn:active {
+            transform: translateY(0);
+        }
+        
+        .tips {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+        
+        .tips h3 {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .tips ul {
+            list-style: none;
+            text-align: right;
+        }
+        
+        .tips li {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            padding-right: 25px;
+            position: relative;
+        }
+        
+        .tips li::before {
+            content: '✓';
+            position: absolute;
+            right: 0;
+            color: #E91E8C;
+            font-weight: bold;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #FEE2E2;
+            color: #DC2626;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-bottom: 25px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #DC2626;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <img src="/images/logo.jpg" alt="Surprise" class="logo" onerror="this.style.display='none'">
+        
+        <div class="offline-icon">📡</div>
+        
+        <div class="status-indicator">
+            <span class="status-dot"></span>
+            غير متصل بالإنترنت
+        </div>
+        
+        <h1>يبدو أنك غير متصل!</h1>
+        <p>
+            لا يمكن تحميل هذه الصفحة الآن. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.
+        </p>
+        
+        <button onclick="retryConnection()" class="retry-btn">
+            🔄 إعادة المحاولة
+        </button>
+        
+        <div class="tips">
+            <h3>💡 نصائح سريعة:</h3>
+            <ul>
+                <li>تحقق من اتصال الواي فاي أو البيانات</li>
+                <li>جرب إيقاف وضع الطيران</li>
+                <li>أعد تشغيل جهازك</li>
+                <li>اتصل بمزود الخدمة إذا استمرت المشكلة</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        function retryConnection() {
+            // Try to fetch the homepage
+            fetch('/', { 
+                method: 'HEAD',
+                cache: 'no-store'
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    showError();
+                }
+            })
+            .catch(() => {
+                showError();
+            });
+        }
+        
+        function showError() {
+            const btn = document.querySelector('.retry-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '❌ لا يزال غير متصل';
+            btn.style.background = '#6B7280';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = 'linear-gradient(135deg, #E91E8C, #FF6BB3)';
+            }, 2000);
+        }
+        
+        // Auto-retry when connection comes back
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>

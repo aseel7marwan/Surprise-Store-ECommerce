@@ -1,0 +1,114 @@
+# Surprise! Store - .htaccess Security & Clean URLs
+# ═══════════════════════════════════════════════════
+# Version: 2.0 - Clean URLs with 301 Redirects
+
+# ============ IRAQ TIMEZONE (Baghdad UTC+3) ============
+php_value date.timezone "Asia/Baghdad"
+
+# Protect data folder and sensitive files (exclude manifest.json for PWA)
+<FilesMatch "^(?!manifest\.json$).*\.(json|sql|log|bak|php~)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# ============ BLOCK SENSITIVE FILES ============
+# Block installation, deploy scripts, and database files
+<FilesMatch "(install\.php|antigravity_master_plan\.md|deploy.*\.(bat|txt|ps1)|database.*\.sql|\.env|\.git)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Enable compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json
+</IfModule>
+
+# Cache static assets
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+</IfModule>
+
+# ============ SECURITY HEADERS ============
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    # Content Security Policy (allows Google Fonts, Telegram, and inline scripts)
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://www.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.telegram.org https://fonts.googleapis.com https://fonts.gstatic.com; frame-ancestors 'self'; worker-src 'self' blob:;"
+</IfModule>
+
+# Prevent directory listing
+Options -Indexes
+
+# ════════════════════════════════════════════════════════
+# URL REWRITING - CLEAN URLs WITHOUT .PHP EXTENSION
+# ════════════════════════════════════════════════════════
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # ========== SEO: Dynamic Sitemap ==========
+    RewriteRule ^sitemap\.xml$ sitemap.php [L]
+    
+    # ========== IMPORTANT: Skip API directory ==========
+    # Don't apply any rewrite/redirect rules to api/ folder
+    RewriteCond %{REQUEST_URI} ^/api/ [NC]
+    RewriteRule .* - [L]
+    
+    # ========== IMPORTANT: Skip Admin directory ==========
+    # Don't apply rewrite/redirect rules to admin/ folder  
+    RewriteCond %{REQUEST_URI} ^/admin/ [NC]
+    RewriteRule .* - [L]
+    
+    # ========== Skip static files ==========
+    RewriteCond %{REQUEST_URI} \.(css|js|jpg|jpeg|png|gif|webp|ico|svg|woff|woff2|ttf|eot|mp4|webm|pdf|zip)$ [NC]
+    RewriteRule .* - [L]
+    
+    # Block access to data directory
+    RewriteRule ^data/ - [F,L]
+    
+    # Block access to includes directory
+    RewriteRule ^includes/ - [F,L]
+    
+    # ════════════════════════════════════════════════════════
+    # 301 REDIRECTS: Remove .php extension (SEO Permanent)
+    # Forces clean URLs and prevents duplicate content
+    # ════════════════════════════════════════════════════════
+    
+    # Redirect /index.php to / (root)
+    RewriteCond %{THE_REQUEST} /index\.php\?*[^\s]* [NC]
+    RewriteRule ^index\.php$ / [R=301,L]
+    
+    # Redirect /page.php to /page (301 for SEO)
+    # Only for frontend pages, not admin/api
+    RewriteCond %{THE_REQUEST} /([^.]+)\.php\?*[^\s]* [NC]
+    RewriteCond %{REQUEST_URI} !^/admin/ [NC]
+    RewriteCond %{REQUEST_URI} !^/api/ [NC]
+    RewriteCond %{REQUEST_URI} !^/sitemap\.php$ [NC]
+    RewriteRule ^([^/]+)\.php$ /$1 [R=301,L,QSA]
+    
+    # ════════════════════════════════════════════════════════
+    # INTERNAL REWRITE: Add .php extension for clean URLs
+    # This handles requests like /products -> products.php
+    # ════════════════════════════════════════════════════════
+    
+    # Add .php extension internally for clean URLs (frontend only)
+    RewriteCond %{REQUEST_URI} !^/admin/ [NC]
+    RewriteCond %{REQUEST_URI} !^/api/ [NC]
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME}\.php -f
+    RewriteRule ^(.*)$ $1.php [L]
+    
+    # Default to index.php for root
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^$ index.php [L]
+</IfModule>

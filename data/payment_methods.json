@@ -1,0 +1,18 @@
+{
+  "cod": {
+    "enabled": true,
+    "is_default": true
+  },
+  "mastercard": {
+    "enabled": true,
+    "is_default": false
+  },
+  "zain_cash": {
+    "enabled": true,
+    "is_default": false
+  },
+  "asia_credit": {
+    "enabled": true,
+    "is_default": false
+  }
+}

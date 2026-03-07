@@ -1,0 +1,30 @@
+{
+    "boxes": {
+        "id": "boxes",
+        "name": "بوكسات 2026",
+        "icon": "🎁",
+        "sort_order": 1,
+        "is_active": true
+    },
+    "printing": {
+        "id": "printing",
+        "name": "الطباعة الشخصية",
+        "icon": "🖨️",
+        "sort_order": 2,
+        "is_active": true
+    },
+    "decorations": {
+        "id": "decorations",
+        "name": "التحفيات والبلورات",
+        "icon": "✨",
+        "sort_order": 3,
+        "is_active": true
+    },
+    "watches": {
+        "id": "watches",
+        "name": "الساعات",
+        "icon": "⌚",
+        "sort_order": 4,
+        "is_active": true
+    }
+}

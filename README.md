@@ -67,11 +67,6 @@ surprise/
 
 ---
 
-## 📸 Screenshots
-
-> _UI showcases and visual features of the platform._
-> _(Add your image links here using HTML <img width="800" src="..." /> tags)_
-
 ## ⚖️ License & Intellectual Property
 
 > **⚠️ Proprietary / Showcase Only**

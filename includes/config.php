@@ -1,50 +1,78 @@
 <?php
 /**
- * Surprise! Store - Configuration
- * Database & Site Settings
+ * Surprise Store — configuration (database, sessions, integrations)
+ * Secrets and infrastructure values come from `.env` (see `.env.example`).
  */
 
+require_once __DIR__ . '/env.php';
+
+$__surpriseRoot = dirname(__DIR__);
+surprise_load_dotenv($__surpriseRoot . DIRECTORY_SEPARATOR . '.env');
+
 // ============ IRAQ TIMEZONE SETTINGS ============
-// Set Iraq timezone (Baghdad = UTC+3)
 date_default_timezone_set('Asia/Baghdad');
 
-// ============ SECURE SESSION CONFIGURATION ============
-if (session_status() === PHP_SESSION_NONE) {
-    // Session cookie settings for maximum stability
-    ini_set('session.cookie_httponly', 1);
-    ini_set('session.cookie_secure', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 1 : 0);
-    ini_set('session.use_strict_mode', 1);
-    ini_set('session.cookie_samesite', 'Lax'); // Lax is more stable than Strict for redirects
-    ini_set('session.cookie_path', '/'); // Ensure cookie works across all paths
-    
-    // 30-day session lifetime (extended for "remember me" functionality)
-    ini_set('session.cookie_lifetime', 2592000); // 30 days
-    ini_set('session.gc_maxlifetime', 2592000);  // 30 days
-    
-    // Reduce garbage collection probability to prevent premature session deletion
-    ini_set('session.gc_probability', 1);
-    ini_set('session.gc_divisor', 1000); // 0.1% chance per request
-    
-    @session_start();
-}
-
-// ============ ENVIRONMENT DETECTION ============
-// Auto-detect environment based on hostname
-$isProduction = (isset($_SERVER['HTTP_HOST']) && (
+// ============ ENVIRONMENT ============
+$appEnv = strtolower(surprise_env('APP_ENV', 'local'));
+$isProduction = ($appEnv === 'production') || (isset($_SERVER['HTTP_HOST']) && (
     strpos($_SERVER['HTTP_HOST'], 'surprise-iq.com') !== false ||
     strpos($_SERVER['HTTP_HOST'], 'web-hosting.com') !== false ||
     (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
 ));
 
+// ============ TOTP / 2FA (used by includes/totp.php when loaded) ============
+define('TOTP_ISSUER', surprise_env('TOTP_ISSUER', 'Surprise Store'));
+$_totpWindow = (int) surprise_env('TOTP_VERIFY_WINDOW', '2');
+define('TOTP_VERIFY_WINDOW', max(1, min(10, $_totpWindow)));
+define('APP_SECRET', surprise_env('APP_SECRET', ''));
+
+// ============ SECURE SESSION CONFIGURATION ============
+if (session_status() === PHP_SESSION_NONE) {
+    $cookieLifetime = (int) surprise_env('SESSION_COOKIE_LIFETIME', '2592000');
+    if ($cookieLifetime < 60) {
+        $cookieLifetime = 2592000;
+    }
+    $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    $sameSite = surprise_env('SESSION_COOKIE_SAMESITE', 'Lax');
+    if (!in_array($sameSite, array('Lax', 'Strict', 'None'), true)) {
+        $sameSite = 'Lax';
+    }
+    if ($sameSite === 'None' && !$secure) {
+        $sameSite = 'Lax';
+    }
+
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.gc_maxlifetime', (string) $cookieLifetime);
+    ini_set('session.gc_probability', '1');
+    ini_set('session.gc_divisor', '1000');
+
+    if (PHP_VERSION_ID >= 70300) {
+        session_set_cookie_params(array(
+            'lifetime' => $cookieLifetime,
+            'path' => '/',
+            'domain' => '',
+            'secure' => $secure,
+            'httponly' => true,
+            'samesite' => $sameSite,
+        ));
+    } else {
+        ini_set('session.cookie_httponly', '1');
+        ini_set('session.cookie_secure', $secure ? '1' : '0');
+        ini_set('session.cookie_samesite', $sameSite);
+        ini_set('session.cookie_path', '/');
+        ini_set('session.cookie_lifetime', (string) $cookieLifetime);
+    }
+
+    session_start();
+}
+
 // ============ PRODUCTION ERROR HANDLING ============
 if ($isProduction) {
-    // Production: Hide errors from users, log them instead
     error_reporting(E_ALL);
-    ini_set('display_errors', 0);
-    ini_set('log_errors', 1);
-    ini_set('error_log', dirname(__DIR__) . '/data/php_errors.log');
-    
-    // HTTPS redirect - Force secure connection in production
+    ini_set('display_errors', '0');
+    ini_set('log_errors', '1');
+    ini_set('error_log', $__surpriseRoot . '/data/php_errors.log');
+
     if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off') {
         $redirect = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         header('HTTP/1.1 301 Moved Permanently');
@@ -52,33 +80,40 @@ if ($isProduction) {
         exit();
     }
 } else {
-    // Development: Show errors
     error_reporting(E_ALL);
-    ini_set('display_errors', 1);
+    ini_set('display_errors', '1');
 }
 
-// ============ DATABASE CONFIGURATION ============
+// ============ DATABASE CONFIGURATION (from .env) ============
+$dbHost = surprise_env('DB_HOST');
+$dbName = surprise_env('DB_NAME');
+$dbUser = surprise_env('DB_USER');
+$dbPass = surprise_env('DB_PASS');
 
-if ($isProduction) {
-    // Production Database
-    define('DB_HOST', 'YOUR_DB_HOST_HERE');
-    define('DB_NAME', 'YOUR_DB_NAME_HERE');
-    define('DB_USER', 'YOUR_DB_USER_HERE');
-    define('DB_PASS', 'YOUR_DB_PASS_HERE');
-} else {
-    // Local XAMPP Development
-    define('DB_HOST', 'localhost');
-    define('DB_NAME', 'surprise_store');
-    define('DB_USER', 'root');
-    define('DB_PASS', '');
+if ($dbHost === '' || $dbName === '') {
+    if (PHP_SAPI === 'cli' || PHP_SAPI === 'phpdbg') {
+        fwrite(STDERR, "Surprise Store: DB_HOST and DB_NAME must be set in .env\n");
+        exit(1);
+    }
+    http_response_code(503);
+    header('Content-Type: text/html; charset=UTF-8');
+    echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Configuration</title></head><body>';
+    echo '<h1>Service unavailable</h1><p>Database is not configured: set <code>DB_HOST</code> and <code>DB_NAME</code> in <code>.env</code>.</p>';
+    echo '</body></html>';
+    exit(1);
 }
+
+define('DB_HOST', $dbHost);
+define('DB_NAME', $dbName);
+define('DB_USER', $dbUser);
+define('DB_PASS', $dbPass);
 
 // PDO Connection with graceful error handling
 $GLOBALS['db_connected'] = false;
 $GLOBALS['pdo'] = null;
 try {
     $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
+        'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
         DB_USER,
         DB_PASS,
         array(
@@ -87,32 +122,23 @@ try {
             PDO::ATTR_EMULATE_PREPARES => false
         )
     );
-    
-    // ============ IRAQ/BAGHDAD TIMEZONE FOR MYSQL ============
-    // تثبيت توقيت بغداد (+03:00) لجميع عمليات MySQL
-    // هذا يضمن أن NOW(), CURRENT_TIMESTAMP تستخدم توقيت بغداد
-    // نستخدم +03:00 بدلاً من 'Asia/Baghdad' للتوافق مع جميع السيرفرات
+
     $pdo->exec("SET time_zone = '+03:00'");
-    
+
     $GLOBALS['pdo'] = $pdo;
     $GLOBALS['db_connected'] = true;
 } catch (PDOException $e) {
-    // SECURITY: Never expose database errors to users
-    // Log the error securely
-    $errorLogFile = dirname(__DIR__) . '/data/db_errors.log';
+    $errorLogFile = $__surpriseRoot . '/data/db_errors.log';
     $errorEntry = date('Y-m-d H:i:s') . ' | ' . $e->getMessage() . "\n";
     @file_put_contents($errorLogFile, $errorEntry, FILE_APPEND | LOCK_EX);
-    
-    // Set a null connection - functions will need to handle this gracefully
+
     $GLOBALS['pdo'] = null;
-    $GLOBALS['db_error'] = 'Database connection failed'; // Generic message only
+    $GLOBALS['db_error'] = 'Database connection failed';
 }
 
 // ============ SITE SETTINGS ============
-// اسم الموقع الرسمي الثابت - يظهر في Google
 define('SITE_NAME', 'بيج سبرايز | Surprise page');
 
-// Auto-detect SITE_URL based on current environment
 if (isset($_SERVER['HTTP_HOST'])) {
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
     $host = $_SERVER['HTTP_HOST'];
@@ -128,14 +154,13 @@ if (isset($_SERVER['HTTP_HOST'])) {
     define('SITE_URL', 'http://localhost/surprise');
 }
 
-// ============ DYNAMIC SOCIAL MEDIA SETTINGS ============
-// These are loaded from database settings (admin panel) with fallback to defaults
-// Function to get a single setting from DB (early loading before functions.php)
 function _getSettingEarly($pdo, $key, $default = '') {
-    if (!$pdo) return $default;
+    if (!$pdo) {
+        return $default;
+    }
     try {
-        $stmt = $pdo->prepare("SELECT setting_value FROM settings WHERE setting_key = ?");
-        $stmt->execute([$key]);
+        $stmt = $pdo->prepare('SELECT setting_value FROM settings WHERE setting_key = ?');
+        $stmt->execute(array($key));
         $value = $stmt->fetchColumn();
         return ($value !== false && $value !== '') ? $value : $default;
     } catch (Exception $e) {
@@ -143,56 +168,36 @@ function _getSettingEarly($pdo, $key, $default = '') {
     }
 }
 
-// Load social settings from database (if connected)
 $_telegramUsername = _getSettingEarly($GLOBALS['pdo'], 'telegram_username', 'sur_prisese');
 $_instagramUsername = _getSettingEarly($GLOBALS['pdo'], 'instagram_username', 'sur._prises');
 
-// Instagram
 define('INSTAGRAM_USER', $_instagramUsername);
 define('INSTAGRAM_DM', 'https://ig.me/m/' . $_instagramUsername);
 define('INSTAGRAM_URL', 'https://instagram.com/' . $_instagramUsername);
 
-// ============ TELEGRAM ORDER SETTINGS ============
-// Telegram username for receiving orders (without @)
 define('TELEGRAM_ORDER_USERNAME', $_telegramUsername);
 define('TELEGRAM_ORDER_DM', 'https://t.me/' . $_telegramUsername);
 
-// ============ TELEGRAM CHANNEL ============
 define('TELEGRAM_CHANNEL', $_telegramUsername);
 define('TELEGRAM_CHANNEL_URL', 'https://t.me/' . $_telegramUsername);
 
-// ============ PATHS ============
-define('ROOT_PATH', dirname(__DIR__) . '/');
+define('ROOT_PATH', $__surpriseRoot . '/');
 define('IMAGES_PATH', ROOT_PATH . 'images/');
 define('UPLOADS_PATH', IMAGES_PATH . 'uploads/');
 
-// ============ UPLOAD SETTINGS ============
-define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
+define('MAX_FILE_SIZE', 5 * 1024 * 1024);
 define('ALLOWED_EXTENSIONS', array('jpg', 'jpeg', 'png', 'webp'));
 
-// ============ ADMIN SETTINGS ============
-// Default credentials (password is hashed)
-define('ADMIN_USER', 'admin');
-// Generate a new hash with: password_hash('your_password', PASSWORD_DEFAULT)
-define('ADMIN_PASS_HASH', 'YOUR_PASSWORD_HASH_HERE');
-
-// ============ CACHE BUSTING VERSION ============
-// تم نقل التحكم بالإصدار إلى ملف منفصل لسهولة التعديل
-// ملف التحكم: includes/version.php
 require_once __DIR__ . '/version.php';
-// للتوافق مع الكود القديم
 if (!defined('ASSETS_VERSION')) {
     define('ASSETS_VERSION', SITE_VERSION);
 }
 
-// ============ TELEGRAM NOTIFICATIONS ============
-// To get Bot Token: Talk to @BotFather on Telegram
-// To get Chat ID: Send a message to the bot then it will be auto-discovered
-define('TELEGRAM_BOT_TOKEN', 'YOUR_TELEGRAM_BOT_TOKEN_HERE');
-define('TELEGRAM_CHAT_ID', 'YOUR_TELEGRAM_CHAT_ID_HERE');
-define('TELEGRAM_ENABLED', true);
+// Telegram bot API (optional notifications)
+define('TELEGRAM_BOT_TOKEN', surprise_env('TELEGRAM_BOT_TOKEN', ''));
+define('TELEGRAM_CHAT_ID', surprise_env('TELEGRAM_CHAT_ID', ''));
+define('TELEGRAM_ENABLED', filter_var(surprise_env('TELEGRAM_ENABLED', 'true'), FILTER_VALIDATE_BOOLEAN));
 
-// ============ SECURITY FUNCTIONS ============
 function generateCSRFToken() {
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -209,11 +214,10 @@ function isAdminLoggedIn() {
 }
 
 function redirect($url) {
-    header("Location: $url");
+    header('Location: ' . $url);
     exit;
 }
 
-// ============ DATABASE HELPER ============
 function db() {
     return $GLOBALS['pdo'];
 }
@@ -221,3 +225,5 @@ function db() {
 function isDbConnected() {
     return !empty($GLOBALS['db_connected']) && $GLOBALS['pdo'] !== null;
 }
+
+unset($__surpriseRoot, $appEnv, $dbHost, $dbName, $dbUser, $dbPass, $_totpWindow, $cookieLifetime, $secure, $sameSite);

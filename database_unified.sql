@@ -1,6 +1,6 @@
--- Surprise! Store Database Backup
--- Created: 2026-02-08 23:21:27
--- Tables: 23
+-- Surprise Store — database schema and sanitized seed data for version control.
+-- Created: 2026-02-08 23:21:27 | Tables: 23
+-- Customer/order PII in this file is synthetic demo data only (no live production exports).
 
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -723,5 +723,14 @@ INSERT INTO `v_product_reviews` (`product_id`,`product_name`,`review_count`,`avg
 INSERT INTO `v_product_reviews` (`product_id`,`product_name`,`review_count`,`avg_rating`,`visible_reviews`) VALUES ('50','بوكس أريال مدريد','0',NULL,'0');
 INSERT INTO `v_product_reviews` (`product_id`,`product_name`,`review_count`,`avg_rating`,`visible_reviews`) VALUES ('15','فانوس كيوبيد المضيء - I Love You','0',NULL,'0');
 INSERT INTO `v_product_reviews` (`product_id`,`product_name`,`review_count`,`avg_rating`,`visible_reviews`) VALUES ('87','بوكس احمر 2','0',NULL,'0');
+
+-- Synthetic demo order (public repo — not real customers)
+DELETE FROM `order_items` WHERE `order_id` = 999001;
+DELETE FROM `order_tracking` WHERE `order_id` = 999001;
+DELETE FROM `orders` WHERE `id` = 999001;
+INSERT INTO `orders` (`id`,`order_number`,`customer_name`,`customer_phone`,`customer_city`,`customer_address`,`contact_method`,`contact_value`,`subtotal`,`packaging_total`,`discount`,`coupon_code`,`delivery_fee`,`total`,`notes`,`terms_consent`,`consent_timestamp`,`status`,`created_at`,`updated_at`) VALUES
+(999001,'DEMO-00001','Customer Alpha (Synthetic)','+964000000000','Baghdad (Demo)','123 Demo Street — Surprise Store showroom','telegram','demo_username',25000,0,0,NULL,5000,30000,'Repository demo row only.',1,'2026-01-15 12:00:00','delivered','2026-01-15 12:00:00','2026-01-15 12:00:00');
+INSERT INTO `order_items` (`order_id`,`product_id`,`product_name`,`price`,`quantity`,`has_custom_image`,`custom_image_path`,`selected_options`,`custom_images`,`packaging_selected`,`packaging_price`,`packaging_description`) VALUES
+(999001,'prod_696eabb577719','Demo catalog line (synthetic)',25000,1,0,NULL,NULL,NULL,0,0,'');
 
 SET FOREIGN_KEY_CHECKS = 1;

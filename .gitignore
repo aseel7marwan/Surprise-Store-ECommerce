@@ -32,6 +32,9 @@ backups/
 *.zip
 
 # ============ SENSITIVE DATA ============
+.env
+.env.local
+.env.*.local
 data/admin_credentials.php
 docs/CREDENTIALS.md
 

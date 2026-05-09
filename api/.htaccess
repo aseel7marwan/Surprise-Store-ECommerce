@@ -1,6 +1,11 @@
 # API Directory - Allow all HTTP methods
 # ═══════════════════════════════════════
 
+<FilesMatch "^(\.env|\.git|\.htaccess)$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
 # Ensure PHP files work correctly
 <IfModule mod_rewrite.c>
     RewriteEngine On

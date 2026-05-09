@@ -14,6 +14,9 @@
  */
 function generateTOTPSecret($length = 20) {
     $randomBytes = random_bytes($length);
+    if (defined('APP_SECRET') && APP_SECRET !== '') {
+        $randomBytes = substr(hash_hmac('sha256', $randomBytes, APP_SECRET, true), 0, $length);
+    }
     return base32Encode($randomBytes);
 }
 
@@ -24,7 +27,10 @@ function generateTOTPSecret($length = 20) {
  * @param int $window Number of 30-second windows to check (before and after)
  * @return bool True if code is valid
  */
-function verifyTOTPCode($secret, $code, $window = 2) {
+function verifyTOTPCode($secret, $code, $window = null) {
+    if ($window === null) {
+        $window = defined('TOTP_VERIFY_WINDOW') ? (int) TOTP_VERIFY_WINDOW : 2;
+    }
     if (strlen($code) !== 6 || !ctype_digit($code)) {
         return false;
     }
@@ -79,7 +85,10 @@ function calculateTOTP($secretBytes, $timeSlice) {
  * @param string $issuer App name (default: Surprise!)
  * @return string otpauth URI
  */
-function getTOTPUri($secret, $username, $issuer = 'Surprise! Store') {
+function getTOTPUri($secret, $username, $issuer = null) {
+    if ($issuer === null) {
+        $issuer = defined('TOTP_ISSUER') ? TOTP_ISSUER : 'Surprise Store';
+    }
     $label = rawurlencode($issuer) . ':' . rawurlencode($username);
     $params = http_build_query([
         'secret' => $secret,

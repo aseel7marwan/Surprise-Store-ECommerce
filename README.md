@@ -105,8 +105,9 @@ IT-Support Specialist & Junior Web Developer
 
 - 🌐 Portfolio: www.aseelmarwan.de  
 - 💼 GitHub: https://github.com/aseel7marwan  
+- 💼 LinkedIn: https://www.linkedin.com/in/aseel7marwan/  
 - 📧 Email: kontakt@aseelmarwan.de
-
+- 
 ---
 
 © 2026 Aseel Marwan Kheder. Built for learning, practice, and real-world experience.

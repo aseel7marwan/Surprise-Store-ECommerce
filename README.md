@@ -103,9 +103,9 @@ The focus of the project is clean structure, functionality, and understanding ho
 **Aseel Marwan Kheder**  
 IT-Support Specialist & Junior Web Developer
 
-- 🌐 Portfolio: https://bashiqa.free.nf  
+- 🌐 Portfolio: www.aseelmarwan.de  
 - 💼 GitHub: https://github.com/aseel7marwan  
-- 📧 Email: kontakt@bashiqa.free.nf  
+- 📧 Email: kontakt@aseelmarwan.de
 
 ---
 

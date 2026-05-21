@@ -2,7 +2,7 @@
 
 # 🎁 Surprise! Store
 
-### Professional E-Commerce Ecosystem
+### Full-Stack E-Commerce Project (Learning & Practice)
 
 ![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
@@ -20,7 +20,7 @@
 
 ### 🔴 [**Visit Surprise! Store — LIVE**](https://surprise-iq.com/)
 
-> **The platform is fully deployed and operational at [surprise-iq.com](https://surprise-iq.com/)**
+> The project is deployed and accessible online for demonstration purposes.
 
 </div>
 
@@ -28,67 +28,85 @@
 
 ## 📖 About The Project
 
-**Surprise! Store** is a professional, full-stack e-commerce ecosystem built from the ground up to serve the Iraqi gifting market. The platform delivers a seamless online shopping experience with a robust admin dashboard, real-time inventory management, and integrated two-factor authentication (2FA) for administrators.
+**Surprise! Store** is a full-stack learning project built to practice modern web development concepts.  
+It simulates a real e-commerce system with an admin panel, product management, and basic security features.
 
-The system is designed with a modular, security-first architecture — featuring CSRF protection, rate-limited login, secure session handling, and TOTP-based 2FA — making it a production-ready solution that prioritizes both user experience and data integrity.
+The focus of the project is clean structure, functionality, and understanding how full-stack systems work end-to-end (frontend, backend, database).
 
 ---
 
 ## ✨ Key Features
 
-- 🛒 **Shopping Cart** — Full-featured cart with real-time price calculation, coupon system, and packaging add-ons
-- ❤️ **Wishlist** — Persistent wishlist functionality for customers to save favorite products
-- 📊 **Admin Dashboard** — Comprehensive management panel with sales analytics, order tracking, and staff management
-- 📦 **Inventory Management** — Real-time stock tracking, product CRUD, category management, and image uploads
-- 🔐 **Two-Factor Authentication (2FA)** — TOTP-based 2FA with QR code setup for admin and staff accounts
-- 🎟️ **Coupon & Discount System** — Flexible coupon engine supporting percentage and fixed discounts with usage limits
-- 📱 **Responsive Design** — Mobile-first UI optimized for all screen sizes with RTL (Arabic) support
-- 📬 **Telegram Notifications** — Automated order alerts sent directly to Telegram for instant processing
-- 🛡️ **CSRF Protection** — Token-based cross-site request forgery prevention on all forms
-- 🔒 **Secure Session Handling** — HTTPOnly cookies, strict mode, and configurable session lifetimes
-- 👥 **Staff & Role Management** — Multi-user access with granular permission controls
-- 📈 **Sales Analytics** — Monthly revenue reports, product performance tracking, and best-seller detection
-- 🖼️ **Product Customization** — Support for custom text fields, image uploads, color/size options per product
+- 🛒 **Shopping Cart** — Add/remove products with dynamic total calculation  
+- ❤️ **Wishlist** — Save favorite products for later  
+- 📊 **Admin Dashboard** — Manage products, orders, and basic statistics  
+- 📦 **Inventory Management** — Simple product CRUD system with image support  
+- 🔐 **Basic 2FA (TOTP)** — Optional two-factor authentication for admin accounts  
+- 🎟️ **Coupon System** — Basic discount functionality with validation  
+- 📱 **Responsive Design** — Mobile-first layout for all devices  
+- 🛡️ **Form Protection** — Basic validation, CSRF protection, and input sanitization  
+- 🔒 **Session Security** — Secure PHP session handling practices  
+- 👥 **Role-Based Access (Basic)** — Simple admin/user separation  
 
 ---
 
-## ⚙️ Performance & Architecture
+## ⚙️ Architecture & Implementation
 
-- **Modular PHP Architecture** — Clean separation of concerns with dedicated includes for config, security, TOTP, and QR generation
-- **SEO-Friendly Implementation** — Semantic HTML5, proper meta tags, and optimized page structure
-- **Optimized Database Schema** — 23+ tables with proper indexing, foreign keys, and JSON column support
-- **Environment-Aware Configuration** — Auto-detection of production vs. development environments
-- **Cache Busting** — Versioned asset loading to ensure users always receive the latest CSS/JS
-
----
-
-<<<<<<< HEAD
-## 🔐 Security Highlights
-
-| Feature                   | Implementation                                                |
-| ------------------------- | ------------------------------------------------------------- |
-| **Two-Factor Auth (2FA)** | TOTP with QR code, device trust, manual key entry             |
-| **CSRF Protection**       | Cryptographic token validation on all state-changing requests |
-| **Rate Limiting**         | Brute-force protection on login endpoints                     |
-| **Session Security**      | HTTPOnly, Secure, SameSite cookies with strict mode           |
-| **Admin Logging**         | Complete audit trail of all administrative actions            |
-| **Device Tracking**       | Known device management with forced logout capability         |
+- **PHP-based backend** with modular structure (config, auth, helpers)
+- **MySQL relational database** for products, users, and orders
+- **Vanilla JavaScript frontend** for interactivity
+- **Responsive UI** using HTML5 + CSS3
+- **Simple API-like structure** for data handling between frontend and backend
+- **Environment-ready setup** for local and hosting deployment
 
 ---
 
-=======
->>>>>>> 0a6fe2eff6dfa7737480492f8429a2f7230535e8
-## ⚖️ License & Intellectual Property
+## 📁 Project Structure
 
-> **⚠️ Proprietary / Showcase Only**
-> This repository serves primarily as a technical portfolio piece. The architecture, concepts, and custom source code are proprietary. Unauthorized commercial use, modification, or distribution is strictly prohibited.
+```
+├── index.php
+├── admin/
+├── includes/
+├── assets/
+│   ├── css/
+│   ├── js/
+│   └── images/
+├── backend/
+│   └── handlers/
+├── database/
+└── config.php
+```
 
-## 👤 Author & Contact
+---
 
-**Aseel Marwan Kheder**
-IT-Support Specialist & Web Developer
+## 🔐 Security Notes
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/aseel-marwan-kheder-36b17033b/)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/aseel7marwan)
+- Input sanitization using PHP filters
+- Basic CSRF protection for forms
+- Secure session handling (HTTPOnly cookies)
+- Password hashing using built-in PHP functions
+- Simple rate-limiting logic for login attempts
 
-📧 **Email:** [kontakt@aseelmarwan.de](mailto:kontakt@aseelmarwan.de)
+> Security features are implemented for learning purposes and not intended for enterprise production use.
+
+---
+
+## ⚖️ License
+
+> This project is a **personal learning project** and portfolio demonstration.  
+> It is not intended for commercial use or production deployment.
+
+---
+
+## 👤 Author
+
+**Aseel Marwan Kheder**  
+IT-Support Specialist & Junior Web Developer
+
+- 🌐 Portfolio: https://bashiqa.free.nf  
+- 💼 GitHub: https://github.com/aseel7marwan  
+- 📧 Email: kontakt@bashiqa.free.nf  
+
+---
+
+© 2026 Aseel Marwan Kheder. Built for learning, practice, and real-world experience.
